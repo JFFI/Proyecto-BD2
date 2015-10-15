@@ -5,6 +5,7 @@
   <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
   <script src="javascripts/jquery.min.js"></script>
   <script src="/javascripts/bootstrap.min.js"></script>
+  <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
   <nav class="navbar navbar-inverse navbar-static-top">
@@ -43,14 +44,24 @@
                 Servicios
               </div>
               <div class="panel-body">
+                <div id="servicio_msj"></div>
                 <div class="form-group">
-                <label for="agregar_servicio">Agregar Servicio</label>
-                <select id="agregar_servicio"class="form-control"></select>
-                <label for="lista_servicios">Lista de servicios agregados:</label>
-                <div id="lista_servicios"></div>
-                <label for="crear_servicio">Crear Servicio</label>
-                <input id="crear_servicio"class="form-control">
-              </div >
+                  <label for="agregar_servicio">Agregar Servicio</label>
+                  <select id="agregar_servicio"class="form-control"></select>
+                  <input id="agregar_servicio_importancia" class="form-control" placeholder="importancia">
+                  <input id="agregar_servicio_disponibles" class="form-control" placeholder="disponibles">
+                </div>
+                  <button id="agregar_servicio_boton" class="btn btn-default form-control">Agregar Servicio</button>
+                  <div class="form-group">
+                  <label for="lista_servicios">Lista de servicios agregados:</label>
+                  <select id="lista_servicios" class="form-control"></select>
+                </div>
+                  <button id="quitar_servicio_boton" class="btn btn-default form-control">Quitar Servicio</button>
+                <div class="form-group">
+                  <label for="crear_servicio">Crear Servicio</label>
+                  <input id="crear_servicio"class="form-control" placeholder="nombre">
+                  <textarea id="crear_servicio_descripcion" class="form-control" placeholder="descripcion"></textarea>
+                </div >
                 <button class="btn btn-default form-control">Crear</button>
               </div>
             </div>
@@ -61,14 +72,23 @@
                 Atributos
               </div>
               <div class="panel-body">
+                <div id="atributo_msj"></div>
                 <div class="form-group">
-                <label for="agregar_atributo">Agregar Atributo</label>
-                <select id="agregar_atributo"class="form-control"></select>
-                <label for="lista_atributos">Lista de atributos agregados:</label>
-                <div id="lista_atributos"></div>
-                <label for="crear_atributo">Crear Atributo</label>
-                <input id="crear_atributo"class="form-control">
-              </div>
+                  <label for="agregar_atributo">Agregar Atributo</label>
+                  <select id="agregar_atributo"class="form-control"></select>
+                  <input id="agregar_atributo_valor" class="form-control" placeholder="valor">
+                </div>
+                  <button id="agregar_atributo_boton" class="btn btn-default form-control">Agregar Atributo</button>
+                <div class="form-group">
+                  <label for="lista_atributos">Lista de atributos agregados:</label>
+                  <select id="lista_atributos" class="form-control"></select>
+                </div>
+                  <button id="quitar_atritubo_boton" class="btn btn-default form-control">Quitar Atributo</button>
+                <div class="form-group">
+                  <label for="crear_atributo">Crear Atributo</label>
+                  <input id="crear_atributo"class="form-control" placeholder="nombre">
+                  <textarea id="crear_atributo_descripcion" class="form-control" placeholder="descripcion"></textarea>
+                </div>
                 <button class="btn btn-default form-control">Crear</button>
               </div>
             </div>
@@ -79,14 +99,22 @@
                 Dimensiones
               </div>
               <div class="panel-body">
+                <div id="dimension_msj"></div>
                 <div class="form-group">
-                <label for="agregar_dimension">Agregar Dimension</label>
-                <select id="agregar_dimension" class="form-control"></select>
-                <label for="lista_dimensiones">Lista de dimensiones agregadas:</label>
-                <div id="lista_dimensiones"></div>
-                <label for="crear_dimension">Crear Dimension</label>
-                <input id="crear_dimension"class="form-control">
-              </div>
+                  <label for="agregar_dimension">Agregar Dimension</label>
+                  <select id="agregar_dimension" class="form-control"></select>
+                  <input id="agregar_dimension_valor" class="form-control" placeholder="valor">
+                </div>
+                  <button id="agregar_dimension_boton" class="btn btn-default form-control">Agregar Dimension</button>
+                <div class="form-group">
+                  <label for="lista_dimensiones">Lista de dimensiones agregadas:</label>
+                  <select id="lista_dimensiones" class="form-control"></select>
+                </div>
+                  <button id="quitar_dimension_boton" class="btn btn-default form-control">Quitar Dimension</button>
+                <div class="form-group">
+                  <label for="crear_dimension">Crear Dimension</label>
+                  <input id="crear_dimension"class="form-control" placeholder ="nombre">
+                </div>
                 <button class="btn btn-default form-control">Crear</button>
               </div>
             </div>
@@ -95,5 +123,102 @@
       </div>
     </div>
   </div>
+  <script>
+  var socket = io.connect();
+
+  socket.on('connect',function(){
+    socket.emit('solicitar_llenar_establecimiento',{username:'{{username}}'});
+  });
+  socket.on('llenar_establecimiento',function(data){
+    var resultado = '<ul>';
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        for(var j =0;j<datacols.length;j++){
+          resultado = resultado + '<li>' + datacols[j] + '</li>';
+        }
+      }
+    }
+    resultado = resultado + '</ul>';
+    document.getElementById('info_establecimiento').innerHTML = resultado;
+    socket.emit('solicitar_llenar_servicios');
+  });
+  socket.on('llenar_servicios',function(data){
+    var lista = document.getElementById('agregar_servicio');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
+    socket.emit('solicitar_llenar_servicios_agregados',{username:'{{username}}'});
+  });
+  socket.on('llenar_servicios_agregados',function(data){
+    socket.emit('solicitar_llenar_atributos');
+  });
+  socket.on('llenar_atributos',function(data){
+    socket.emit('solicitar_llenar_atributos_agregados',{username:'{{username}}'});
+  });
+  socket.on('llenar_atributos_agregados',function(data){
+    socket.emit('solicitar_llenar_dimensiones');
+  });
+  socket.on('llenar_dimensiones',function(data){
+    socket.emit('solicitar_llenar_dimensiones_agregadas',{username:'{{username}}'});
+  });
+  socket.on('llenar_dimensiones_agregadas',function(data){
+    //
+  });
+  $(function(){
+    document.getElementById('agregar_servicio_boton').addEventListener('click',function(){
+      socket.emit('agregar_servicio',{
+        establecimiento:'',
+        servicio:document.getElementById('agregar_servicio').value,
+        importancia:document.getElementById('agregar_servicio_importancia').value,
+        disponibles:document.getElementById('agregar_servicio_disponibles').value
+      });
+    });
+    document.getElementById('agregar_atributo_boton').addEventListener('click',function(){
+      socket.emit('agregar_atributo',{
+        establecimiento:'',
+        atributo:document.getElementById('agregar_atributo').value,
+        valor:document.getElementById('agregar_atributo_valor').value
+      });
+    });
+    document.getElementById('agregar_dimension_boton').addEventListener('click',function(){
+      socket.emit('agregar_dimension',{
+        establecimiento:'',
+        dimension:document.getElementById('agregar_dimension').value,
+        valor:document.getElementById('agregar_dimension_valor').value
+      });
+    });
+  });
+  socket.on('res_agregar_servicio',function(data){
+    if(data=="exito"){
+      document.getElementById('servicio_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+    }else{
+      document.getElementById('servicio_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
+    }
+  });
+  socket.on('res_agregar_atributo',function(data){
+    if(data=="exito"){
+      document.getElementById('atributo_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+    }else{
+      document.getElementById('atributo_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
+    }
+  });
+  socket.on('res_agregar_dimension',function(data){
+    if(data=="exito"){
+      document.getElementById('dimension_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+    }else{
+      document.getElementById('dimension_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
+    }
+  });
+  </script>
 </body>
 </html>

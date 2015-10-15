@@ -4,36 +4,36 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('proyecto_bd2:server');
-var http = require('http');
+ var app = require('../app');
+ var debug = require('debug')('proyecto_bd2:server');
+ var http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+ var port = normalizePort(process.env.PORT || '3000');
+ app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+ var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+ server.listen(port);
+ server.on('error', onError);
+ server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
  */
 
-function normalizePort(val) {
+ function normalizePort(val) {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
@@ -53,27 +53,27 @@ function normalizePort(val) {
  * Event listener for HTTP server "error" event.
  */
 
-function onError(error) {
+ function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
   }
 
   var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  ? 'Pipe ' + port
+  : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
+    console.error(bind + ' requires elevated privileges');
+    process.exit(1);
+    break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
+    console.error(bind + ' is already in use');
+    process.exit(1);
+    break;
     default:
-      throw error;
+    throw error;
   }
 }
 
@@ -81,86 +81,63 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
+ function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  ? 'pipe ' + addr
+  : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
 
 io = require('socket.io').listen(server);
 var oracledb = require('oracledb');
-
+var connection;
+oracledb.getConnection({
+  user          : "PROYECTO",
+  password      : "123456",
+  connectString : "192.168.1.5/XE"
+},function(err,connection_ora){
+  if(err){console.error(err.message);return;}
+  connection = connection_ora;
+});
 io.on('connection',function(socket){
   socket.on('req_llenar_usuarios',function(){
-    oracledb.getConnection(
-    {
-      user          : "PROYECTO",
-      password      : "123456",
-      connectString : "192.168.1.5/XE"
-    },
-    function(err, connection)
-    {
-      if (err) { console.error(err.message); return; }
-
-      connection.execute(
-        "SELECT * FROM TODOS_USUARIOS",
-        function(err, result)
-        {
-          if (err) { console.error(err.message); return; }
-          console.log(result.rows);
-          var resultado='';
-          for(var i = 0;i<result.rows.length;i++){
-            resultado = resultado + "~" + result.rows[i][0];
-          }
-          socket.emit('llenar_usuarios',resultado.substring(1));
-        });
-    });
+    connection.execute(
+      "SELECT * FROM TODOS_USUARIOS",
+      function(err, result)
+      {
+        if (err) { console.error(err.message); return; }
+        console.log(result.rows);
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          resultado = resultado + "~" + result.rows[i][0];
+        }
+        socket.emit('llenar_usuarios',resultado.substring(1));
+      });
   });
   socket.on('req_llenar_tusuario',function(){
-    oracledb.getConnection(
-    {
-      user          : "PROYECTO",
-      password      : "123456",
-      connectString : "192.168.1.5/XE"
-    },
-    function(err, connection)
-    {
-      if (err) { console.error(err.message); return; }
-
-      connection.execute(
-        "SELECT * FROM TODOS_TIPOSU",
-        function(err, result)
-        {
-          if (err) { console.error(err.message); return; }
-          console.log(result.rows);
-          var resultado='';
-          for(var i = 0;i<result.rows.length;i++){
-            var resultado2='';
-            for(var j =0;j<result.rows[i].length;j++){
-              resultado2 = resultado2 + ";" + result.rows[i][j]
-            }
-            resultado = resultado + "~" + resultado2.substring(1);
+    connection.execute(
+      "SELECT * FROM TODOS_TIPOSU",
+      function(err, result)
+      {
+        if (err) { console.error(err.message); return; }
+        console.log(result.rows);
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
           }
-          socket.emit('llenar_tusuario',resultado.substring(1));
-        });
-    });
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_tusuario',resultado.substring(1));
+      });
   });
   socket.on('crear_usuario',function(data){
-    oracledb.getConnection(
-    {
-      user          : "PROYECTO",
-      password      : "123456",
-      connectString : "192.168.1.5/XE"
-    },
-    function(err, connection){
-      if (err) { console.error(err.message); socket.emit('res_adminusers','fallo'); return; }
-
-      connection.execute(
-        "SELECT VERIFICAR_USERNAME(\'"+data.username+"\') as respuesta from DUAL",
-        function(err, result){
-          if (err) { console.error(err.message); socket.emit('res_adminusers','fallo'); return; }
+    connection.execute(
+      "SELECT VERIFICAR_USERNAME(\'"+data.username+"\') as respuesta from DUAL",
+      function(err, result){
+        if (err) { console.error(err.message); socket.emit('res_adminusers','fallo'); return; }
         var disponible = result.rows[0][0];
         if(disponible == 0){
           connection.execute(
@@ -174,51 +151,66 @@ io.on('connection',function(socket){
           return;
         }
       });
-    });
   });
   socket.on('req_llenar_usuario',function(data){
-    oracledb.getConnection(
-    {
-      user          : "PROYECTO",
-      password      : "123456",
-      connectString : "192.168.1.5/XE"
-    },
-    function(err, connection){
-      if (err) { console.error(err.message); return; }
-      connection.execute(
-        "SELECT PASSWORD,NOMBRE,TELEFONO,CORREO,TIPO_USUARIO FROM USUARIO WHERE USERNAME = :username",[data],
-        function(err, result){
-          if (err) { console.error(err.message); return; }
-          socket.emit('llenar_usuario',{
-            password:result.rows[0][0],
-            nombre:result.rows[0][1],
-            telefono:result.rows[0][2],
-            correo:result.rows[0][3],
-            tipo_usuario:result.rows[0][4]
-          });
+    connection.execute(
+      "SELECT PASSWORD,NOMBRE,TELEFONO,CORREO,TIPO_USUARIO FROM USUARIO WHERE USERNAME = :username",[data],
+      function(err, result){
+        if (err) { console.error(err.message); return; }
+        socket.emit('llenar_usuario',{
+          password:result.rows[0][0],
+          nombre:result.rows[0][1],
+          telefono:result.rows[0][2],
+          correo:result.rows[0][3],
+          tipo_usuario:result.rows[0][4]
+        });
       });
-    });
   });
   socket.on('editar_usuario',function(data){
-    oracledb.getConnection(
-    {
-      user          : "PROYECTO",
-      password      : "123456",
-      connectString : "192.168.1.5/XE"
-    },
-    function(err, connection){
-      if (err) { console.error(err.message); socket.emit('res_adminusers','fallo');return; }
-      connection.execute(
-        "BEGIN MODIFICAR_USUARIO(\'"+data.username+"\',\'"+data.telefono+"\',\'"+data.correo+"\',\'"+data.password+"\',\'"+data.nombre+"\',"+data.tipo_usuario+"); END;",
-        function(err, result){
-          if (err) { console.error(err.message);socket.emit('res_adminusers','fallo'); return; }
-          socket.emit('res_adminusers','exito');
+    connection.execute(
+      "BEGIN MODIFICAR_USUARIO(\'"+data.username+"\',\'"+data.telefono+"\',\'"+data.correo+"\',\'"+data.password+"\',\'"+data.nombre+"\',"+data.tipo_usuario+"); END;",
+      function(err, result){
+        if (err) { console.error(err.message);socket.emit('res_adminusers','fallo'); return; }
+        socket.emit('res_adminusers','exito');
       });
-    });
   });
   socket.on('borrar_usuario',function(data){
-    //borra
-    //devuelve res_adminusers:exito-fallo
+    connection.execute(
+      "BEGIN ELIMINAR_USUARIO(\'"+data.username+"\'); END;",
+      function(err, result){
+        if (err) { console.error(err.message);socket.emit('res_adminusers','fallo'); return; }
+        socket.emit('res_adminusers','exito');
+      });
+  });
+  socket.on('solicitar_llenar_establecimiento',function(data){
+    connection.execute(
+      "SELECT * FROM TABLE(DEVOLVER_E_U(:username))",[data.username],function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_establecimiento',resultado.substring(1));
+      });
+  });
+  socket.on('solicitar_llenar_servicios',function(data){
+    connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios',resultado.substring(1));
+      });
   });
 });
 

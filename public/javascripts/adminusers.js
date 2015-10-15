@@ -61,6 +61,7 @@ socket.on('res_adminusers',function(data){
 	}else{
 		document.getElementById('msje').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
 	}
+	socket.emit('req_llenar_usuarios');
 });
 $(function(){
 	document.getElementById('c_boton').addEventListener('click',function(){

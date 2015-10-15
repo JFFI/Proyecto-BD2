@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Proyecto BD2</title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+    <script src="javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container" style="padding-top:5%">
+      <div class="jumbotron">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h1>Registrarse</h1>
+          </div>
+          <div class="panel-body">
+            <a href="/"><button class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button></a>
+            <div id="msje"></div>
+            <form role="form" method="post" action="/register">
+              <div class="form-group">
+                <label for="username">Nombre de usuario:</label>
+                <input id="username" class="form-control" name="username">
+                <label for="password">Contraseña:</label>
+                <input id="password" name="password" type="password" class="form-control">
+                <label for="nombre">Nombre:</label>
+                <input id="nombre" name="nombre" class="form-control">
+                <label for="telefono">Teléfono:</label>
+                <input id="telefono" name="telefono" class="form-control">
+                <label for="correo">Correo:</label>
+                <input id="correo" name="correo" class="form-control">
+              </div>
+              <button type="subimt" class="btn btn-primary form-control">Registrarme</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+    $(function(){
+      var estado = {{estado}};
+      switch(estado){
+        case 0:
+        break;
+        case 1:
+        document.getElementById('msje').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>{{msj}}</div>";
+        break;
+        case 2:
+        document.getElementById('msje').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>{{msj}}</div>";
+        default:
+      }
+    });
+    </script>
+  </body>
+</html>

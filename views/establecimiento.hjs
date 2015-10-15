@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proyecto BD2</title>
+  <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+  <script src="javascripts/jquery.min.js"></script>
+  <script src="/javascripts/bootstrap.min.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-brand"><h4><strong>Proyecto BD2</strong></h4></span>
+      </div>
+      <form class ="navbar-form navbar-right"action="/admininicio" method="post" role="form"> 
+        <input type="hidden" value="salir" name="metodo">
+        <p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{username}}</p>
+        <button type="submit" class="btn btn-inverse navbar-btn">Salir</button>
+      </form>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Bienvenido {{username}}</h2>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Informacion
+              </div>
+              <div id="info_establecimiento" class="panel-body">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Servicios
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                <label for="agregar_servicio">Agregar Servicio</label>
+                <select id="agregar_servicio"class="form-control"></select>
+                <label for="lista_servicios">Lista de servicios agregados:</label>
+                <div id="lista_servicios"></div>
+                <label for="crear_servicio">Crear Servicio</label>
+                <input id="crear_servicio"class="form-control">
+              </div >
+                <button class="btn btn-default form-control">Crear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Atributos
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                <label for="agregar_atributo">Agregar Atributo</label>
+                <select id="agregar_atributo"class="form-control"></select>
+                <label for="lista_atributos">Lista de atributos agregados:</label>
+                <div id="lista_atributos"></div>
+                <label for="crear_atributo">Crear Atributo</label>
+                <input id="crear_atributo"class="form-control">
+              </div>
+                <button class="btn btn-default form-control">Crear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Dimensiones
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                <label for="agregar_dimension">Agregar Dimension</label>
+                <select id="agregar_dimension" class="form-control"></select>
+                <label for="lista_dimensiones">Lista de dimensiones agregadas:</label>
+                <div id="lista_dimensiones"></div>
+                <label for="crear_dimension">Crear Dimension</label>
+                <input id="crear_dimension"class="form-control">
+              </div>
+                <button class="btn btn-default form-control">Crear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

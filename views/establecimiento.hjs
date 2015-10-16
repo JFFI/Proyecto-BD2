@@ -32,7 +32,22 @@
               <div class="panel-heading">
                 Informacion
               </div>
-              <div id="info_establecimiento" class="panel-body">
+              <div class="panel-body">
+                <div class="form-group">
+                  <input id="e_id" type="hidden">
+                  <label for="e_nombre">Nombre</label>
+                  <input id="e_nombre" class="form-control">
+                  <label for="e_direccion">Direccion</label>
+                  <input id="e_direccion" class="form-control">
+                  <label for="e_telefono">Telefono</label>
+                  <input id="e_telefono" class="form-control">
+                  <label for="e_latitud">Latitud</label>
+                  <input id="e_latitud" class="form-control">
+                  <label for="e_longitud">Longitud</label>
+                  <input id="e_longitud" class="form-control">
+                </div>
+                <button id="e_boton" class="form-control btn btn-primary">Guardar</button>
+                <div id="info_establecimiento"></div>
               </div>
             </div>
           </div>
@@ -62,7 +77,7 @@
                   <input id="crear_servicio"class="form-control" placeholder="nombre">
                   <textarea id="crear_servicio_descripcion" class="form-control" placeholder="descripcion"></textarea>
                 </div >
-                <button class="btn btn-default form-control">Crear</button>
+                <button id="crear_servicio_boton" class="btn btn-default form-control">Crear</button>
               </div>
             </div>
           </div>
@@ -83,13 +98,13 @@
                   <label for="lista_atributos">Lista de atributos agregados:</label>
                   <select id="lista_atributos" class="form-control"></select>
                 </div>
-                  <button id="quitar_atritubo_boton" class="btn btn-default form-control">Quitar Atributo</button>
+                  <button id="quitar_atributo_boton" class="btn btn-default form-control">Quitar Atributo</button>
                 <div class="form-group">
                   <label for="crear_atributo">Crear Atributo</label>
                   <input id="crear_atributo"class="form-control" placeholder="nombre">
                   <textarea id="crear_atributo_descripcion" class="form-control" placeholder="descripcion"></textarea>
                 </div>
-                <button class="btn btn-default form-control">Crear</button>
+                <button id ="crear_atributo_boton" class="btn btn-default form-control">Crear</button>
               </div>
             </div>
           </div>
@@ -115,7 +130,7 @@
                   <label for="crear_dimension">Crear Dimension</label>
                   <input id="crear_dimension"class="form-control" placeholder ="nombre">
                 </div>
-                <button class="btn btn-default form-control">Crear</button>
+                <button id="crear_dimension_boton" class="btn btn-default form-control">Crear</button>
               </div>
             </div>
           </div>
@@ -130,21 +145,18 @@
     socket.emit('solicitar_llenar_establecimiento',{username:'{{username}}'});
   });
   socket.on('llenar_establecimiento',function(data){
-    var resultado = '<ul>';
-    if(data!=''){
-      var datarows = data.split('~');
-      for(var i = 0;i<datarows.length;i++){
-        var datacols = datarows[i].split(';');
-        for(var j =0;j<datacols.length;j++){
-          resultado = resultado + '<li>' + datacols[j] + '</li>';
-        }
-      }
+    if(data.id!=''){
+      document.getElementById('e_nombre').value = data.nombre;
+      document.getElementById('e_telefono').value = data.telefono;
+      document.getElementById('e_longitud').value = data.longitud;
+      document.getElementById('e_latitud').value = data.latitud;
+      document.getElementById('e_direccion').value = data.direccion;
+      document.getElementById('e_id').value = data.id;
     }
-    resultado = resultado + '</ul>';
-    document.getElementById('info_establecimiento').innerHTML = resultado;
     socket.emit('solicitar_llenar_servicios');
   });
   socket.on('llenar_servicios',function(data){
+    console.log(data);
     var lista = document.getElementById('agregar_servicio');
     lista.options = 0;
     if(data!=''){
@@ -160,19 +172,78 @@
     socket.emit('solicitar_llenar_servicios_agregados',{username:'{{username}}'});
   });
   socket.on('llenar_servicios_agregados',function(data){
+    var lista = document.getElementById('lista_servicios');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
     socket.emit('solicitar_llenar_atributos');
   });
   socket.on('llenar_atributos',function(data){
+    var lista = document.getElementById('agregar_atributo');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
     socket.emit('solicitar_llenar_atributos_agregados',{username:'{{username}}'});
   });
   socket.on('llenar_atributos_agregados',function(data){
+    var lista = document.getElementById('lista_atributos');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
     socket.emit('solicitar_llenar_dimensiones');
   });
   socket.on('llenar_dimensiones',function(data){
+    var lista = document.getElementById('agregar_dimension');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
     socket.emit('solicitar_llenar_dimensiones_agregadas',{username:'{{username}}'});
   });
   socket.on('llenar_dimensiones_agregadas',function(data){
-    //
+    var lista = document.getElementById('lista_dimensiones');
+    lista.options = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        newop.value = datacols[0];
+        newop.text = datacols[1];
+        lista.options.add(newop);
+      }
+    }
   });
   $(function(){
     document.getElementById('agregar_servicio_boton').addEventListener('click',function(){
@@ -195,6 +266,41 @@
         establecimiento:'',
         dimension:document.getElementById('agregar_dimension').value,
         valor:document.getElementById('agregar_dimension_valor').value
+      });
+    });
+    document.getElementById('quitar_servicio_boton').addEventListener('click',function(){
+      socket.emit('quitar_servicio',{
+        username:'{{username}}',
+        servicio:document.getElementById('lista_servicios').value
+      });
+    });
+    document.getElementById('quitar_atributo_boton').addEventListener('click',function(){
+      socket.emit('quitar_atributo',{
+        username:'{{username}}',
+        servicio:document.getElementById('lista_atributos').value
+      });
+    });
+    document.getElementById('quitar_dimension_boton').addEventListener('click',function(){
+      socket.emit('quitar_dimension',{
+        username:'{{username}}',
+        servicio:document.getElementById('lista_dimensiones').value
+      });
+    });
+    document.getElementById('crear_servicio_boton').addEventListener('click',function(){
+      socket.emit('crear_servicio',{
+        nombre:document.getElementById('crear_servicio').value,
+        descripcion:document.getElementById('crear_servicio_descripcion').value
+      });
+    });
+    document.getElementById('crear_atributo_boton').addEventListener('click',function(){
+      socket.emit('crear_atributo',{
+        nombre:document.getElementById('crear_atributo').value,
+        descripcion:document.getElementById('crear_atributo_descripcion').value
+      });
+    });
+    document.getElementById('crear_dimension_boton').addEventListener('click',function(){
+      socket.emit('crear_dimension',{
+        nombre:document.getElementById('crear_dimension').value
       });
     });
   });

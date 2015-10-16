@@ -183,7 +183,7 @@ io.on('connection',function(socket){
       });
   });
   socket.on('solicitar_llenar_establecimiento',function(data){
-    connection.execute(
+    /*connection.execute(
       "SELECT * FROM TABLE(DEVOLVER_E_U(:username))",[data.username],function(err,result){
         if(err){console.error(err.message);return;}
         var resultado='';
@@ -195,6 +195,32 @@ io.on('connection',function(socket){
           resultado = resultado + "~" + resultado2.substring(1);
         }
         socket.emit('llenar_establecimiento',resultado.substring(1));
+      });*/
+    connection.execute(
+      "SELECT * FROM TABLE(DEVOLVER_E_U(:username))",[data.username],function(err,result){
+        if(err){console.error(err.message);return;}
+        var enombre='';
+        var etelefono='';
+        var edireccion='';
+        var elongitud='';
+        var elatitud='';
+        var eid='';
+        var eusuario='';
+        if(result.rows.length>0){
+        for(var i = 0;i<result.rows[0].length;i++){
+          switch(i){
+            case 0:eid = result.rows[0][i];break;
+            case 1:etelefono = result.rows[0][i];break;
+            case 2:edireccion = result.rows[0][i];break;
+            case 3:enombre = result.rows[0][i];break;
+            case 4:elatitud = result.rows[0][i];break;
+            case 5:elongitud = result.rows[0][i];break;
+            case 6:eusuario = result.rows[0][i];break;
+            default:
+          }
+        }
+      }
+        socket.emit('llenar_establecimiento',{nombre:enombre,telefono:etelefono,direccion:edireccion,longitud:elongitud,latitud:elatitud,id:eid,usuario:eusuario});
       });
   });
   socket.on('solicitar_llenar_servicios',function(data){
@@ -211,6 +237,126 @@ io.on('connection',function(socket){
         }
         socket.emit('llenar_servicios',resultado.substring(1));
       });
+  });
+  socket.on('solicitar_llenar_servicios_agregados',function(data){
+    /*connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios_agregados',resultado.substring(1));
+      });*/
+  });
+  socket.on('solicitar_llenar_atributos',function(data){
+    /*connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios',resultado.substring(1));
+      });*/
+  });
+  socket.on('solicitar_llenar_atributos_agregados',function(data){
+    /*connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios',resultado.substring(1));
+      });*/
+  });
+  socket.on('solicitar_llenar_dimensiones',function(data){
+    /*connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios',resultado.substring(1));
+      });*/
+  });
+  socket.on('solicitar_llenar_dimensiones_agregadas',function(data){
+    /*connection.execute(
+      "SELECT SERVICIO,NOMBRE FROM TODOS_SERVICIOS",function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar_servicios',resultado.substring(1));
+      });*/
+  });
+  socket.on('agregar_servicio',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_servicio');
+    });*/
+  });
+  socket.on('agregar_dimension',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_dimension');
+    });*/
+  });
+  socket.on('agregar_atributo',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_atributo');
+    });*/
+  });
+  socket.on('quitar_servicio',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_servicio');
+    });*/
+  });
+  socket.on('quitar_dimension',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_dimension');
+    });*/
+  });
+  socket.on('quitar_atributo',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_atributo');
+    });*/
+  });
+  socket.on('crear_servicio',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_servicio');
+    });*/
+  });
+  socket.on('crear_atributo',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_atributo');
+    });*/
+  });
+  socket.on('crear_dimension',function(data){
+    /*connection.execute("agregar servicio",[data],function(err,result){
+      socket.emit('res_agregar_dimension');
+    });*/
   });
 });
 

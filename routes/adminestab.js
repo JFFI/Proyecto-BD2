@@ -7,7 +7,7 @@ router.get('/',function(req,res,next){
 	}else{
 		switch(req.session.tipo_usuario){
 			case 1:
-			res.render('admininicio',{username:req.session.username});
+			res.render('adminestab',{username:req.session.username});
 			break;
 			case 2:
 			res.redirect('/establecimiento');
@@ -24,14 +24,12 @@ router.get('/',function(req,res,next){
 		req.session.destroy();
 		res.redirect('/');
 		break;
-		case 'users':
-		res.redirect('/adminusers');
-		break;
-		case 'estab':
-		res.redirect('/adminestab');
+		case 'inicio':
+		res.redirect('/admininicio');
 		break;
 		default:
-		res.render('admininicio',{username:req.session.username});
+		res.render('adminestab',{username:req.session.username});
 	}
 });
+
 module.exports = router;

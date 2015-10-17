@@ -39,10 +39,50 @@
           <div id="resultados"></div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-8">
+          <h1>No encuentras lo que querías? Colocalo en el mapa!</h1>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <input id="nooficial_nombre" class="form-control" placeholder="nombre">
+            <input id="nooficial_telefono" class="form-control"placeholder="telefono">
+            <input id="nooficial_direccion" class="form-control"placeholder="direccion">
+            <input id="nooficial_latitud" class="form-control" type="number" step=0.000001 placeholder="latitud">
+            <input id="nooficial_longitud" class="form-control" type="number" step=0.000001 placeholder="longitud">
+            <button id="nooficial_boton" class="btn btn-warning form-control"></button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+            <h3>Mis asignaciones:</h3>
+            <div id="asignaciones_usuario"</div>
+          <!--<button id="asignaciones_usuario_boton" class="btn btn-danger form-control">DesReservar</button>-->
+        </div>
+      </div>
     </div>
   </div>
   <script>
   var socket = io.connect();
+  socket.on('connect',function(){
+    socket.emit('asignaciones_usuario_req',{
+      username:'{{username}}'
+    })
+  });
+  socket.on('asignaciones_usuario_res',function(data){
+    console.log(data);
+    var lista = document.getElementById('asignaciones_usuario');
+    var result = '';
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        result = result + '<h3>Lugar: '+datacols[0]+'</h3><br><h4>Servicio: '+datacols[1]+'</h4><br><label>Horas: '+datacols[2]+'</label><br><label>Comentario:<br>'+datacols[3]+'</label><br>';
+      }
+    }
+    lista.innerHTML = result;
+  });
   socket.on('resultado_busqueda',function(data){
     var array = data.split('~');
     var resultado = '';
@@ -60,6 +100,17 @@
     document.getElementById('boton_buscar').addEventListener('click',function(){
       socket.emit('buscar',{busqueda:document.getElementById('busqueda').value});
     });
+    document.getElementById('nooficial_boton').addEventListener('click',function(){
+      socket.emit('insertar_no_oficial',{
+        nombre:document.getElementById('nooficial_nombre').value,
+        telefono:document.getElementById('nooficial_telefono').value,
+        direccion:document.getElementById('nooficial_direccion').value,
+        longitud:document.getElementById('nooficial_longitud').value,
+        latitud:document.getElementById('nooficial_latitud').value,
+        username:'{{username}}'
+      });
+    });
+
   });
   </script>
 </body>

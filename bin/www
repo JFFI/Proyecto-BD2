@@ -506,6 +506,15 @@ io.on('connection',function(socket){
         }
       });
   });
+  socket.on('req_caltotal',function(data){
+    connection.execute(
+      "SELECT * FROM TABLE(DEVOLVER_CALIFICACIONT(:establecimiento))",[data.establecimiento],function(err,result){
+        if(err){console.log(err.message);return;}
+          else{
+            socket.emit('res_caltotal',result.rows[0][0]*7);
+          }
+        });
+  });
   socket.on('calificar_servicio',function(data){
     if(data.comentario==null){
       data.comentario=' ';
@@ -515,12 +524,34 @@ io.on('connection',function(socket){
         if(err){console.error(err.message);}
         socket.emit('calificar_servicio_res','exito');
       });
-  })
-  socket.on('insertar_no_oficial',function(data){
+  });
+  socket.on('reservar_servicio',function(data){
+    console.log('llega');
+    console.log(data.inicio.replace('T',' '));
     connection.execute(
-      "BEGIN CREAR_ESTABLECIMIENTO(:telefono,:direccion,:nombre:latitud:longitud:username); END;",[data.telefono,data.direccion,data.nombre,data.latitud,data.longitud,data.username],function(err,result){
-        if(err){console.error(err.message);}
-        else{}
+      "SELECT VERIFICAR_DISPONIBLES(:establecimiento,:servicio) AS RESPUESTA FROM DUAL",[data.establecimiento,data.servicio],function(err,result){
+        if(err){console.error(err.message);return;}
+        
+        else{
+          if(result.rows[0][0] == 1){
+            connection.execute(
+              "BEGIN CREAR_RC(:establecimiento,:servicio,:username,:tipo,:valor,:comentario,TO_DATE(:inicio,'yyyy-mm-dd/hh24:mi'),:final); END;",[data.establecimiento,data.servicio,data.username,2,data.valor,data.comentario,data.inicio.replace('T','/'),null],function(err,result){
+                if(err){console.error(err.message);return;}
+                console.log('exito');
+                console.log(data);
+              });
+          }else{
+            console.log('lleno?');
+          }
+        }
+      });
+  });
+  socket.on('insertar_no_oficial',function(data){
+    console.log(data);
+    connection.execute(
+      "BEGIN CREAR_ESTABLECIMIENTO(:telefono,:direccion,:nombre,:latitud,:longitud,:username); END;",[data.telefono,data.direccion,data.nombre,data.latitud,data.longitud,data.username],function(err,result){
+        if(err){console.error(err.message);return;}
+        console.log('exito');
       });
   });
   socket.on('req_llenar_no_oficial',function(){
@@ -538,6 +569,49 @@ io.on('connection',function(socket){
         }
         console.log(resultado.substring(1));
         socket.emit('llenar_no_oficial',resultado.substring(1));
+        }
+      });
+  });
+  socket.on('borrar_establecimiento_no_oficial',function(data){
+    connection.execute(
+      "BEGIN ELIMINAR_ESTABLECIMIENTO(:establecimiento); END;",[data.establecimiento],function(err,result){
+        if(err){console.error(err.message);return;}
+        socket.emit('borrar_establecimiento_no_oficial_res','exito');
+      });
+  });
+  socket.on('req_llenar_comentariosextra',function(data){
+    connection.execute(
+      "SELECT * FROM TABLE(DEVOLVER_CALIFICACION_NP(:establecimiento))",[data.establecimiento],function(err,result){
+        if(err){console.error(err.message);}
+        else{
+          var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        console.log(resultado.substring(1));
+        socket.emit('llenar_comentariosextra',resultado.substring(1));
+        }
+      });
+  });
+  socket.on('asignaciones_usuario_req',function(data){
+    connection.execute(
+      "SELECT * FROM TABLE(DEVOLVER_RESERVACIONESU(:username))",[data.username],function(err,result){
+        if(err){console.error(err.message);}
+        else{
+          var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        console.log(resultado.substring(1));
+        socket.emit('asignaciones_usuario_res',resultado.substring(1));
         }
       });
   });

@@ -33,6 +33,7 @@
                 Informacion
               </div>
               <div class="panel-body">
+                <div class="col-md-8">
                 <div class="form-group">
                   <input id="e_id" type="hidden">
                   <label for="e_nombre">Nombre</label>
@@ -42,12 +43,15 @@
                   <label for="e_telefono">Telefono</label>
                   <input id="e_telefono" class="form-control">
                   <label for="e_latitud">Latitud</label>
-                  <input id="e_latitud" class="form-control">
+                  <input id="e_latitud" type="number" step="0.000001" class="form-control">
                   <label for="e_longitud">Longitud</label>
-                  <input id="e_longitud" class="form-control">
+                  <input id="e_longitud" type = "number" step="0.000001"class="form-control">
                 </div>
                 <button id="e_boton" class="form-control btn btn-primary">Guardar</button>
+              </div>
+              <div class="col-md-4">
                 <div id="info_establecimiento"></div>
+              </div>
               </div>
             </div>
           </div>
@@ -70,6 +74,11 @@
                   <div class="form-group">
                   <label for="lista_servicios">Lista de servicios agregados:</label>
                   <select id="lista_servicios" class="form-control"></select>
+                  <label for="lista_servicios_importancia">Importancia:</label>
+                  <input id="lista_servicios_importancia" class="form-control">
+                  <label for="lista_servicios_disponibles">Disponibles:</label>
+                  <input id="lista_servicios_disponibles" class="form-control">
+                  <button id="editar_servicio_disponible" class="btn btn-default form-control">Editar</button>
                 </div>
                   <button id="quitar_servicio_boton" class="btn btn-default form-control">Quitar Servicio</button>
                 <div class="form-group">
@@ -97,6 +106,9 @@
                 <div class="form-group">
                   <label for="lista_atributos">Lista de atributos agregados:</label>
                   <select id="lista_atributos" class="form-control"></select>
+                  <label for="lista_atributos_valor">Valor:</label>
+                  <input id="lista_atributos_valor" class="form-control">
+                  <button id="editar_atributo_disponible" class="btn btn-default form-control">Editar</button>
                 </div>
                   <button id="quitar_atributo_boton" class="btn btn-default form-control">Quitar Atributo</button>
                 <div class="form-group">
@@ -124,6 +136,9 @@
                 <div class="form-group">
                   <label for="lista_dimensiones">Lista de dimensiones agregadas:</label>
                   <select id="lista_dimensiones" class="form-control"></select>
+                  <label for="lista_dimensiones_valor">Valor:</label>
+                  <input id="lista_dimensiones_valor" class="form-control">
+                  <button id="editar_dimension_disponible" class="btn btn-default form-control">Editar</button>
                 </div>
                   <button id="quitar_dimension_boton" class="btn btn-default form-control">Quitar Dimension</button>
                 <div class="form-group">
@@ -158,7 +173,7 @@
   socket.on('llenar_servicios',function(data){
     console.log(data);
     var lista = document.getElementById('agregar_servicio');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -173,7 +188,7 @@
   });
   socket.on('llenar_servicios_agregados',function(data){
     var lista = document.getElementById('lista_servicios');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -184,11 +199,21 @@
         lista.options.add(newop);
       }
     }
+    if(lista.options.length > 0){
+      socket.emit('solicitar_llenar_servicio',{
+        establecimiento:document.getElementById('e_id').value,
+        servicio:lista.value
+      });
+    }else{
+      document.getElementById('lista_servicios_disponibles').value = '';
+      document.getElementById('lista_servicios_importancia').value = '';
+    }
     socket.emit('solicitar_llenar_atributos');
   });
   socket.on('llenar_atributos',function(data){
+    console.log(data);
     var lista = document.getElementById('agregar_atributo');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -203,7 +228,7 @@
   });
   socket.on('llenar_atributos_agregados',function(data){
     var lista = document.getElementById('lista_atributos');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -214,11 +239,19 @@
         lista.options.add(newop);
       }
     }
+    if(lista.options.length > 0){
+      socket.emit('solicitar_llenar_atributo',{
+        establecimiento:document.getElementById('e_id').value,
+        atributo:lista.value
+      });
+    }else{
+      document.getElementById('lista_atributos_valor').value = '';
+    }
     socket.emit('solicitar_llenar_dimensiones');
   });
   socket.on('llenar_dimensiones',function(data){
     var lista = document.getElementById('agregar_dimension');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -233,7 +266,7 @@
   });
   socket.on('llenar_dimensiones_agregadas',function(data){
     var lista = document.getElementById('lista_dimensiones');
-    lista.options = 0;
+    lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
       for(var i = 0;i<datarows.length;i++){
@@ -244,11 +277,44 @@
         lista.options.add(newop);
       }
     }
+    if(lista.options.length > 0){
+      socket.emit('solicitar_llenar_dimension',{
+        establecimiento:document.getElementById('e_id').value,
+        dimension:lista.value
+      });
+    }else{
+      document.getElementById('lista_dimensiones_valor').value = '';
+    }
+  });
+  socket.on('llenar_servicio',function(data){
+      document.getElementById('lista_servicios_disponibles').value = data.disponibles;
+      document.getElementById('lista_servicios_importancia').value = data.importancia;
+    
+  });
+  socket.on('llenar_atributo',function(data){
+    
+      document.getElementById('lista_atributos_valor').value = data.valor;
+    
+  });
+  socket.on('llenar_dimension',function(data){
+    
+      document.getElementById('lista_dimensiones_valor').value = data.valor;
+    
   });
   $(function(){
+    document.getElementById('e_boton').addEventListener('click',function(){
+      socket.emit('editar_establecimiento',{
+        establecimiento:document.getElementById('e_id').value,
+        telefono:document.getElementById('e_telefono').value,
+        direccion:document.getElementById('e_direccion').value,
+        latitud:document.getElementById('e_latitud').value,
+        longitud:document.getElementById('e_longitud').value,
+        nombre:document.getElementById('e_nombre').value
+      });
+    });
     document.getElementById('agregar_servicio_boton').addEventListener('click',function(){
       socket.emit('agregar_servicio',{
-        establecimiento:'',
+        establecimiento:document.getElementById('e_id').value,
         servicio:document.getElementById('agregar_servicio').value,
         importancia:document.getElementById('agregar_servicio_importancia').value,
         disponibles:document.getElementById('agregar_servicio_disponibles').value
@@ -256,34 +322,34 @@
     });
     document.getElementById('agregar_atributo_boton').addEventListener('click',function(){
       socket.emit('agregar_atributo',{
-        establecimiento:'',
+        establecimiento:document.getElementById('e_id').value,
         atributo:document.getElementById('agregar_atributo').value,
         valor:document.getElementById('agregar_atributo_valor').value
       });
     });
     document.getElementById('agregar_dimension_boton').addEventListener('click',function(){
       socket.emit('agregar_dimension',{
-        establecimiento:'',
+        establecimiento:document.getElementById('e_id').value,
         dimension:document.getElementById('agregar_dimension').value,
         valor:document.getElementById('agregar_dimension_valor').value
       });
     });
     document.getElementById('quitar_servicio_boton').addEventListener('click',function(){
       socket.emit('quitar_servicio',{
-        username:'{{username}}',
+        establecimiento:document.getElementById('e_id').value,
         servicio:document.getElementById('lista_servicios').value
       });
     });
     document.getElementById('quitar_atributo_boton').addEventListener('click',function(){
       socket.emit('quitar_atributo',{
-        username:'{{username}}',
-        servicio:document.getElementById('lista_atributos').value
+        establecimiento:document.getElementById('e_id').value,
+        atributo:document.getElementById('lista_atributos').value
       });
     });
     document.getElementById('quitar_dimension_boton').addEventListener('click',function(){
       socket.emit('quitar_dimension',{
-        username:'{{username}}',
-        servicio:document.getElementById('lista_dimensiones').value
+        establecimiento:document.getElementById('e_id').value,
+        dimension:document.getElementById('lista_dimensiones').value
       });
     });
     document.getElementById('crear_servicio_boton').addEventListener('click',function(){
@@ -303,10 +369,42 @@
         nombre:document.getElementById('crear_dimension').value
       });
     });
+    document.getElementById('editar_servicio_disponible').addEventListener('click',function(){
+      socket.emit('editar_servicio',{
+        establecimiento:document.getElementById('e_id').value,
+        servicio:document.getElementById('lista_servicios').value,
+        importancia:document.getElementById('lista_servicios_importancia').value,
+        disponibles:document.getElementById('lista_servicios_disponibles').value
+      });
+    });
+    document.getElementById('editar_atributo_disponible').addEventListener('click',function(){
+      socket.emit('editar_atributo',{
+        establecimiento:document.getElementById('e_id').value,
+        atributo:document.getElementById('lista_atributos').value,
+        valor:document.getElementById('lista_atributos_valor').value
+      });
+    });
+    document.getElementById('editar_dimension_disponible').addEventListener('click',function(){
+      socket.emit('editar_dimension',{
+        establecimiento:document.getElementById('e_id').value,
+        dimension:document.getElementById('lista_dimensiones').value,
+        valor:document.getElementById('lista_dimensiones_valor').value
+      });
+    });
+    document.getElementById('lista_servicios').addEventListener('change',function(){
+      socket.emit('solicitar_llenar_servicio',{establecimiento:document.getElementById('e_id').value,servicio:document.getElementById('lista_servicios').value});
+    });
+    document.getElementById('lista_atributos').addEventListener('change',function(){
+      socket.emit('solicitar_llenar_atributo',{establecimiento:document.getElementById('e_id').value,atributo:document.getElementById('lista_atributos').value});
+    });
+    document.getElementById('lista_dimensiones').addEventListener('change',function(){
+      socket.emit('solicitar_llenar_dimension',{establecimiento:document.getElementById('e_id').value,dimension:document.getElementById('lista_dimensiones').value});
+    });
   });
   socket.on('res_agregar_servicio',function(data){
     if(data=="exito"){
       document.getElementById('servicio_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+      socket.emit('solicitar_llenar_servicios');
     }else{
       document.getElementById('servicio_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
     }
@@ -314,6 +412,7 @@
   socket.on('res_agregar_atributo',function(data){
     if(data=="exito"){
       document.getElementById('atributo_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+      socket.emit('solicitar_llenar_servicios');
     }else{
       document.getElementById('atributo_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
     }
@@ -321,8 +420,17 @@
   socket.on('res_agregar_dimension',function(data){
     if(data=="exito"){
       document.getElementById('dimension_msj').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+      socket.emit('solicitar_llenar_servicios');
     }else{
       document.getElementById('dimension_msj').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
+    }
+  });
+  socket.on('res_editar_establecimiento',function(data){
+    if(data=="exito"){
+      document.getElementById('info_establecimiento').innerHTML = "<div class=\"alert alert-success alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Exito</div>";
+      socket.emit('solicitar_llenar_establecimiento');
+    }else{
+      document.getElementById('info_establecimiento').innerHTML = "<div class=\"alert alert-danger alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>Error</div>";
     }
   });
   </script>

@@ -5,6 +5,7 @@
   <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
   <script src="javascripts/jquery.min.js"></script>
   <script src="/javascripts/bootstrap.min.js"></script>
+  <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
   <nav class="navbar navbar-inverse navbar-static-top">
@@ -28,51 +29,38 @@
     <div class="row">
       <div class="col-md-12">
         <div class="from-group">
-          <input class="form-control">
-          <button class="btn btn-default form-control">Buscar</button>
-        </div>
-        <div class="form-group">
-          <div class="radio">
-            <label>
-              <input type="radio" value="nombre" checked>Por Nombre
-            </label>
-          </div>
-          <div class="radio">
-            <label>
-              <input type="radio" value="dimension">Por Dimension
-            </label>
-          </div>
-          <div class="radio">
-            <label>
-              <input type="radio" value="servicio">Por Servicio
-            </label>
-          </div>
-          <div class="radio">
-            <label>
-              <input type="radio" value="atributo">Por Atributo
-            </label>
-          </div>
+          <input id="busqueda" class="form-control">
+          <button  id="boton_buscar" class="btn btn-default form-control">Buscar</button>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
-          Resultados
-          Ejemplo:
-          <form role="form" method="post" action="/inicio">
-            <div class="row">
-              <div class="col-sm-8">
-                <h1>Uno</h1>
-                <input type="hidden" name="metodo" value="visitar">
-            <input type="hidden" name="establecimiento" value="1">
-            </div>
-            <div class="col-sm-4">
-              <button type="submit" class="btn btn-default">Visitar</button>
-            </div>
-          </div>
-          </form>
+          <h1>Resultados</h1>
+          <div id="resultados"></div>
         </div>
       </div>
     </div>
   </div>
+  <script>
+  var socket = io.connect();
+  socket.on('resultado_busqueda',function(data){
+    var array = data.split('~');
+    var resultado = '';
+    if(data!=''){
+      for(var i = 0; i < array.length;i++){
+        var lista = array[i].split(';');
+        resultado = resultado + '<form role="form" method="post" action="/inicio"><div class="row"><div class="col-sm-8"><h2>'+lista[3]+'</h2><input type="hidden" name="metodo" value="visitar"><input type="hidden" name="establecimiento" value="'+lista[0]+'"></div><div class="col-sm-4"><button type="submit" class="btn btn-default">Visitar</button></div></div></form>';
+      }
+    }else{
+      resultado = "<h1>No se encontro nada :(</h1>";
+    }
+    document.getElementById('resultados').innerHTML = resultado;
+  });
+  $(function(){
+    document.getElementById('boton_buscar').addEventListener('click',function(){
+      socket.emit('buscar',{busqueda:document.getElementById('busqueda').value});
+    });
+  });
+  </script>
 </body>
 </html>

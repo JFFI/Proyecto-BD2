@@ -5,6 +5,7 @@
     <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
     <script src="javascripts/jquery.min.js"></script>
     <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
   </head>
   <body>
       <nav class="navbar navbar-inverse navbar-static-top">
@@ -26,21 +27,34 @@
       </div>
       <div class="panel-body container">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <form role="form" method="post" action="/admininicio">
               <input type="hidden" name="metodo" value="users">
               <button type="submit" class="btn btn-primary"><h1><span class="glyphicon glyphicon-user"></span></h1>Administrar<br>Usuarios</button>
             </form>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
             <form role="form" method="post" action="/admininicio">
               <input type="hidden" name="metodo" value="estab">
               <button type="submit" class="btn btn-primary"><h1><span class="glyphicon glyphicon-home"></span></h1>Administrar<br>Establecimientos</button>
             </form>
       </div>
+      <div class="col-md-4">
+            
+              <input type="hidden" name="metodo" value="estab">
+              <button id="exportar" class="btn btn-primary"><h1><span class="glyphicon glyphicon-arrow-right"></span></h1>Exportar<br>Datos</button>
+      </div>
     </div>
       </div>
     </div>
     </div>
+    <script>
+    var socket = io.connect();
+    $(function(){
+      document.getElementById('exportar').addEventListener('click',function(){
+        socket.emit('exportar_archivo');
+      });
+    });
+    </script>
   </body>
 </html>

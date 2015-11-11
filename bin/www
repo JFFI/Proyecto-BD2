@@ -7,7 +7,7 @@
  var app = require('../app');
  var debug = require('debug')('proyecto_bd2:server');
  var http = require('http');
-
+ var fs = require('fs');
 /**
  * Get port from environment and store in Express.
  */
@@ -511,7 +511,8 @@ io.on('connection',function(socket){
       "SELECT * FROM TABLE(DEVOLVER_CALIFICACIONT(:establecimiento))",[data.establecimiento],function(err,result){
         if(err){console.log(err.message);return;}
           else{
-            socket.emit('res_caltotal',result.rows[0][0]*7);
+            if(result.rows.length>0){
+            socket.emit('res_caltotal',result.rows[0][0]*7);}
           }
         });
   });
@@ -615,30 +616,28 @@ io.on('connection',function(socket){
         }
       });
   });
-});
-
-
-/*var oracledb = require('oracledb');
-
-oracledb.getConnection(
-  {
-    user          : "hr",
-    password      : "welcome",
-    connectString : "localhost/XE"
-  },
-  function(err, connection)
-  {
-    if (err) { console.error(err.message); return; }
-
-    connection.execute(
-      "SELECT department_id, department_name " +
-        "FROM departments " +
-        "WHERE manager_id < :id",
-      [110],  // bind value for :id
-      function(err, result)
-      {
-        if (err) { console.error(err.message); return; }
-        console.log(result.rows);
+  socket.on('exportar_archivo',function(){
+    console.log('llego');
+    connection.execute("SELECT * FROM CA12_CA11_CA8",function(err,result){
+      if(err){console.error(err.message);return;}
+      fs.unlink("/home/julio/hola2.csv",function(){
+        for(var w=0;w<result.metaData.length;w++){
+          fs.appendFile("/home/julio/hola2.csv",','+result.metaData[w].name,function(err){
+            console.log(result.rows.length);
+            console.log(w);
+            if(w == result.rows.length){
+              fs.appendFile('/home/julio/hola2.csv','\n',function(){
+                for(var i=0;i<result.rows.length;i++){
+                  fs.appendFile("/home/julio/hola2.csv",result.rows[i]+"\n",function(err){
+                    if(err){throw err}
+                  });
+                }
+                console.log('done');
+              });
+            }
+          });
+        }
       });
+    });
   });
-  */
+});

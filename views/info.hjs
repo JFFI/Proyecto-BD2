@@ -79,7 +79,7 @@
   });
   socket.on('res_caltotal',function(data){
     console.log(data);
-    if(data!=0){
+    if(data!=0 && data!=null && data!=''){
 
       document.getElementById('relleno').innerHTML = '<input id="caltotal" type="number" min = 0 max = 7 step =1 data-stars=7 data-symbol="&#xe165;" readonly="true" data-show-caption="false" data-show-clear="false" value="'+data+'">';
     $('#caltotal').rating();
@@ -135,7 +135,8 @@
     var array = data.split('~');
     var resultado = '';
     var i = 0;
-    if(data!=''){
+    console.log(data);
+    if(data!='' && data!=null){
       for(i; i < array.length;i++){
         var lista = array[i].split(';');
         resultado = resultado + '<div class="row"><div class="col-sm-4"><label>'+lista[1]+':</label><input id="estrellita'+i+'" type="number" min = 0 max = 7 step =1 data-stars=7 data-symbol="&#xe165;" readonly="true" data-show-caption="false" data-show-clear="false" value="'+lista[2]+'"></div><div class="col-sm-4"><input id="miestrellita'+i+'"type="number" min=0 max=7 step =1 data-stars=7 data-symbol="&#xe165;"><br><div class="form-group"><input type="hidden" id="hid'+i+'" value="'+lista[0]+'"><textarea id="comentario'+i+'" class="form-control"placeholder="escribe algo para calificar"></textarea><button value="'+i+'"id="boton_rating'+i+'" class="btn btn-default form-control">Calificar</button></div></div><div class="col-sm-4"><div class="form-group"><input id="inicio'+i+'" class="form-control" type="datetime-local"><input placeholder="numero de horas a reservar"id="valor_reserva'+i+'" class="form-control"><textarea placeholder="comenta algo"id="comentario_reserva'+i+'" class="form-control"></textarea><button id="boton_reserva'+i+'" value="'+i+'"class="btn btn-default form-control">Reservar</button></div></div></div>';

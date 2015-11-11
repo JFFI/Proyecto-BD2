@@ -56,7 +56,7 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-            <h3>Mis asignaciones:</h3>
+            <h3>Mis reservaciones:</h3>
             <div id="asignaciones_usuario"</div>
           <!--<button id="asignaciones_usuario_boton" class="btn btn-danger form-control">DesReservar</button>-->
         </div>

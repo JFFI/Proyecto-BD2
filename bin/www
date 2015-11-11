@@ -182,9 +182,24 @@ io.on('connection',function(socket){
         socket.emit('res_adminusers','exito');
       });
   });
+  socket.on('solicitar_lista_est',function(data){
+    connection.execute(
+      "SELECT E.ESTABLECIMIENTO,E.NOMBRE FROM ESTABLECIMIENTO E,USUARIO U WHERE E.username = U.username and U.username =:username",[data.username],function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('lista_est',resultado.substring(1));
+      });
+  });
   socket.on('solicitar_llenar_establecimiento',function(data){
     connection.execute(
-      "SELECT * FROM TABLE(DEVOLVER_E_U(:username))",[data.username],function(err,result){
+      "SELECT * FROM TABLE(DEVOLVER_E_U(:username,:est))",[data.username,data.est],function(err,result){
         if(err){console.error(err.message);return;}
         var enombre='';
         var etelefono='';
@@ -227,7 +242,7 @@ io.on('connection',function(socket){
   });
   socket.on('solicitar_llenar_servicios_agregados',function(data){
     connection.execute(
-      "SELECT SERVICIO,NOMBRE FROM TABLE(DEVOLVER_SERVICIOS_USUARIO(:username))",[data.username],function(err,result){
+      "SELECT SERVICIO,NOMBRE FROM TABLE(DEVOLVER_SERVICIOS_USUARIO(:username,:est))",[data.username,data.est],function(err,result){
         if(err){console.error(err.message);return;}
         var resultado='';
         for(var i = 0;i<result.rows.length;i++){
@@ -257,7 +272,7 @@ io.on('connection',function(socket){
   });
   socket.on('solicitar_llenar_atributos_agregados',function(data){
     connection.execute(
-      "SELECT ATRIBUTO,NOMBRE FROM TABLE(DEVOLVER_ATRIBUTOS_USUARIO(:username))",[data.username],function(err,result){
+      "SELECT ATRIBUTO,NOMBRE FROM TABLE(DEVOLVER_ATRIBUTOS_USUARIO(:username,:est))",[data.username,data.est],function(err,result){
         if(err){console.error(err.message);return;}
         var resultado='';
         for(var i = 0;i<result.rows.length;i++){
@@ -287,7 +302,7 @@ io.on('connection',function(socket){
   });
   socket.on('solicitar_llenar_dimensiones_agregadas',function(data){
     connection.execute(
-      "SELECT DIMENSION,NOMBRE FROM TABLE(DEVOLVER_DIMENSIONES_USUARIO(:username))",[data.username],function(err,result){
+      "SELECT DIMENSION,NOMBRE FROM TABLE(DEVOLVER_DIMENSIONES_USUARIO(:username,:est))",[data.username,data.est],function(err,result){
         if(err){console.error(err.message);return;}
         var resultado='';
         for(var i = 0;i<result.rows.length;i++){
@@ -506,6 +521,20 @@ io.on('connection',function(socket){
         }
       });
   });
+  socket.on('req_llenar_otrosnombres',function(data){
+    connection.execute(
+      "SELECT NOMBRE FROM OTRO_NOMBRE WHERE ESTABLECIMIENTO = :establecimiento",[data.establecimiento],function(err,result){
+        if(err){console.error(err.message);}
+        else{
+          var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          resultado = resultado + "~" + result.rows[i][0];
+        }
+        console.log(resultado.substring(1));
+        socket.emit('llenar_otrosnombres',resultado.substring(1));
+        }
+      });
+  });
   socket.on('req_caltotal',function(data){
     connection.execute(
       "SELECT * FROM TABLE(DEVOLVER_CALIFICACIONT(:establecimiento))",[data.establecimiento],function(err,result){
@@ -553,6 +582,7 @@ io.on('connection',function(socket){
       "BEGIN CREAR_ESTABLECIMIENTO(:telefono,:direccion,:nombre,:latitud,:longitud,:username); END;",[data.telefono,data.direccion,data.nombre,data.latitud,data.longitud,data.username],function(err,result){
         if(err){console.error(err.message);return;}
         console.log('exito');
+        socket.emit('nooficial_exito');
       });
   });
   socket.on('req_llenar_no_oficial',function(){
@@ -568,10 +598,32 @@ io.on('connection',function(socket){
           }
           resultado = resultado + "~" + resultado2.substring(1);
         }
-        console.log(resultado.substring(1));
         socket.emit('llenar_no_oficial',resultado.substring(1));
         }
       });
+  });
+  socket.on('req_llenar__oficial',function(){
+    connection.execute(
+      "SELECT * FROM TODOS_ESTABLECIMIENTOS_2",function(err,result){
+        if(err){console.error(err.message);}
+        else{
+          var resultado='';
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('llenar__oficial',resultado.substring(1));
+        }
+      });
+  });
+  socket.on('merge',function(data){
+    connection.execute("BEGIN MERGE_ESTABLECIMIENTO(:oficial,:nooficial); END;",[data.estabof,data.estabnoof],function(err,result){
+      if(err){console.error(err.message);return;}
+      socket.emit("merge_res",'exito');
+    });
   });
   socket.on('borrar_establecimiento_no_oficial',function(data){
     connection.execute(

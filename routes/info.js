@@ -7,7 +7,7 @@ router.get('/',function(req,res,next){
 	}else{
 		switch(req.session.tipo_usuario){
 			case 1:
-			res.redirect('/admininicio');
+			res.render('info',{username:req.session.username,establecimiento:req.session.establecimiento});
 			break;
 			case 2:
 			res.redirect('/establecimiento');

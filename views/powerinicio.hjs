@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Proyecto BD2</title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+    <script src="javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+  </head>
+  <body>
+      <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-brand"><h4><strong>Proyecto BD2</strong></h4></span>
+      </div>
+      <form class ="navbar-form navbar-right"action="/admininicio" method="post" role="form"> 
+        <input type="hidden" value="salir" name="metodo">
+        <p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{username}}</p>
+        <button type="submit" class="btn btn-inverse navbar-btn">Salir</button>
+      </form>
+    </div>
+  </nav>
+    <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Bienvenido {{username}}</h2>
+      </div>
+      <div class="panel-body container">
+        <div class="row">
+          <div class="col-md-12">
+            <form role="form" action="/powerinicio" method="post">
+              <input name="metodo" value="ver" type="hidden">
+              <label for="est">Establecimiento:</label>
+              <select name="est" class="form-control" id = "est"></select>
+              <button type="submit" class="form-control">Administrar</button>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+            <h2>Crear nuevo establecimiento</h2>
+            <input id="nooficial_nombre" class="form-control" placeholder="nombre">
+            <input id="nooficial_telefono" class="form-control"placeholder="telefono">
+            <input id="nooficial_direccion" class="form-control"placeholder="direccion">
+            <input id="nooficial_latitud" class="form-control" type="number" step=0.000001 placeholder="latitud">
+            <input id="nooficial_longitud" class="form-control" type="number" step=0.000001 placeholder="longitud">
+            <button id="nooficial_boton" class="btn btn-warning form-control">Crear</button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <script>
+    var socket = io.connect();
+    socket.on('connect',function(){
+      socket.emit('solicitar_lista_est',{username:'{{username}}'});
+    });
+    socket.on('lista_est',function(data){
+      console.log(data);
+      var lista = document.getElementById('est');
+      lista.options.length = 0;
+      if(data!=''){
+        var datarows = data.split('~');
+        for(var i = 0;i<datarows.length;i++){
+          var datacols = datarows[i].split(';');
+          var newop = document.createElement('option');
+          newop.value = datacols[0];
+          newop.text = datacols[1];
+          lista.options.add(newop);
+        }
+      }
+    });
+    socket.on('nooficial_exito',function(data){
+      socket.emit('solicitar_lista_est',{username:'{{username}}'});
+    });
+    $(function(){
+      document.getElementById('nooficial_boton').addEventListener('click',function(){
+        socket.emit('insertar_no_oficial',{
+          nombre:document.getElementById('nooficial_nombre').value,
+          telefono:document.getElementById('nooficial_telefono').value,
+          direccion:document.getElementById('nooficial_direccion').value,
+          longitud:document.getElementById('nooficial_longitud').value,
+          latitud:document.getElementById('nooficial_latitud').value,
+          username:'{{username}}'
+        });
+      });
+    });
+    </script>
+  </body>
+</html>

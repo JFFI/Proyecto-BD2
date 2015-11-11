@@ -45,9 +45,15 @@
             <div id="info_general"></div>
           </div>
           <div class="col-md-8">
-            Mapa
+              Mapa
           </div>
         </div>
+        <div class="row">
+              <div class="col-md-12">
+                <h3>Otros nombres</h3>
+              <div id="mas_infootrosnombres"></div>
+              </div>
+            </div>
         <hr>
         <div class="row">
           <div class="col-md-6">
@@ -74,6 +80,7 @@
     socket.emit('req_llenar_info_dimensiones',{establecimiento:'{{establecimiento}}'});
     socket.emit('req_llenar_info_atributos',{establecimiento:'{{establecimiento}}'});
     socket.emit('req_llenar_info_servicios',{establecimiento:'{{establecimiento}}'});
+    socket.emit('req_llenar_otrosnombres',{establecimiento:'{{establecimiento}}'});
     socket.emit('req_llenar_comentariosextra',{establecimiento:'{{establecimiento}}'});
     socket.emit('req_caltotal',{establecimiento:'{{establecimiento}}'});
   });
@@ -104,7 +111,16 @@
     }
     document.getElementById('mas_info2').innerHTML = resultado;
   });
-
+  socket.on('llenar_otrosnombres',function(data){
+    var array = data.split('~');
+    var resultado = '';
+    if(data!=''){
+      for(var i = 0; i < array.length;i++){
+        resultado = resultado + '<label>'+array[i]+'</label><br>';
+      }
+    }
+    document.getElementById('mas_infootrosnombres').innerHTML = resultado;
+  });
   socket.on('llenar_info_atributos',function(data){
     var array = data.split('~');
     var resultado = '';

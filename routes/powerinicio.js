@@ -4,15 +4,13 @@ var router = express.Router();
 router.get('/',function(req,res,next){
 	if(req.session.username == null){
 		res.redirect('/');
-	}else if(req.session.est == null){
-		res.redirect('/powerinicio');
 	}else{
 		switch(req.session.tipo_usuario){
 			case 1:
 			res.redirect('/admininicio');
 			break;
 			case 2:
-			res.render('establecimiento',{username:req.session.username,est:req.session.est});
+			res.render('powerinicio',{username:req.session.username});
 			break;
 			case 3:
 			res.redirect('/inicio');
@@ -26,11 +24,12 @@ router.get('/',function(req,res,next){
 		req.session.destroy();
 		res.redirect('/');
 		break;
-		case 'backback':
-		req.session.est = null;
-		res.redirect('/powerinicio');
+		case 'ver':
+		req.session.est = req.body.est;
+		res.redirect('/establecimiento');
+		break;
 		default:
-		res.redirect('/powerinicio');
+		res.render('powerinicio',{username:req.session.username});
 	}});
 
 module.exports = router;

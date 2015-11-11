@@ -21,6 +21,10 @@
     </div>
   </nav>
   <div class="container">
+    <form action="/powerinicio" method="post" role="form">
+      <input type="hidden" name="metodo" value ="backback">
+      <button type="submit"><span class="glyphicon glyphicon-arrow-left"></span></button>
+    </form>
     <div class="panel panel-default">
       <div class="panel-heading">
         <h2>Bienvenido {{username}}</h2>
@@ -157,7 +161,7 @@
   var socket = io.connect();
 
   socket.on('connect',function(){
-    socket.emit('solicitar_llenar_establecimiento',{username:'{{username}}'});
+    socket.emit('solicitar_llenar_establecimiento',{username:'{{username}}',est:'{{est}}'});
   });
   socket.on('llenar_establecimiento',function(data){
     if(data.id!=''){
@@ -184,7 +188,7 @@
         lista.options.add(newop);
       }
     }
-    socket.emit('solicitar_llenar_servicios_agregados',{username:'{{username}}'});
+    socket.emit('solicitar_llenar_servicios_agregados',{username:'{{username}}',est:'{{est}}'});
   });
   socket.on('llenar_servicios_agregados',function(data){
     var lista = document.getElementById('lista_servicios');
@@ -224,7 +228,7 @@
         lista.options.add(newop);
       }
     }
-    socket.emit('solicitar_llenar_atributos_agregados',{username:'{{username}}'});
+    socket.emit('solicitar_llenar_atributos_agregados',{username:'{{username}}',est:'{{est}}'});
   });
   socket.on('llenar_atributos_agregados',function(data){
     var lista = document.getElementById('lista_atributos');
@@ -262,7 +266,7 @@
         lista.options.add(newop);
       }
     }
-    socket.emit('solicitar_llenar_dimensiones_agregadas',{username:'{{username}}'});
+    socket.emit('solicitar_llenar_dimensiones_agregadas',{username:'{{username}}',est:'{{est}}'});
   });
   socket.on('llenar_dimensiones_agregadas',function(data){
     var lista = document.getElementById('lista_dimensiones');

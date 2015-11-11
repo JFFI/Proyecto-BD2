@@ -48,16 +48,61 @@
           </div>
         </div>
       </div>
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3>Merge</h3>
+          </div>
+          <div class="panel-body">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="estabof">Establecimiento Oficial:</label>
+                <select id="estabof" class="form-control"></select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="estabnoof2">Establecimiento no Oficial:</label>
+                <select id="estabnoof2" class="form-control"></select>
+              </div>
+            </div>
+            <button id="estabnoof2_boton" class="btn btn-primary form-control">Mezclar</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <script>
   var socket = io.connect();
   socket.on('connect',function(){
     socket.emit('req_llenar_no_oficial');
+    socket.emit('req_llenar__oficial');
   });
   socket.on('llenar_no_oficial',function(data){
     console.log(data);
     var lista = document.getElementById('estabnoof');
+    var lista2 = document.getElementById('estabnoof2');
+    lista.options.length = 0;
+    lista2.options.length = 0;
+    if(data!=''){
+      var datarows = data.split('~');
+      for(var i = 0;i<datarows.length;i++){
+        var datacols = datarows[i].split(';');
+        var newop = document.createElement('option');
+        var newop2 = document.createElement('option');
+        newop.value = datacols[0];
+        newop2.value = datacols[0];
+        newop.text = datacols[3];
+        newop2.text = datacols[3];
+        lista.options.add(newop);
+        lista2.options.add(newop2);
+      }
+    }
+  });
+  socket.on('llenar__oficial',function(data){
+    console.log(data);
+    var lista = document.getElementById('estabof');
+    
     lista.options.length = 0;
     if(data!=''){
       var datarows = data.split('~');
@@ -75,10 +120,22 @@
       socket.emit('req_llenar_no_oficial');
     }
   });
+  socket.on('merge_res',function(data){
+    if(data=='exito'){
+      socket.emit('req_llenar__oficial');
+      socket.emit('req_llenar_no_oficial');
+    }
+  })
   $(function(){
     document.getElementById('estabnoof_boton').addEventListener('click',function(){
       socket.emit('borrar_establecimiento_no_oficial',{
         establecimiento:document.getElementById('estabnoof').value
+      });
+    });
+    document.getElementById('estabnoof2_boton').addEventListener('click',function(){
+      socket.emit('merge',{
+        estabnoof:document.getElementById('estabnoof2').value,
+        estabof:document.getElementById('estabof').value
       });
     });
   });

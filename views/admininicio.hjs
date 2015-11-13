@@ -27,19 +27,25 @@
       </div>
       <div class="panel-body container">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <form role="form" method="post" action="/admininicio">
               <input type="hidden" name="metodo" value="users">
               <button type="submit" class="btn btn-primary"><h1><span class="glyphicon glyphicon-user"></span></h1>Administrar<br>Usuarios</button>
             </form>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
             <form role="form" method="post" action="/admininicio">
               <input type="hidden" name="metodo" value="estab">
               <button type="submit" class="btn btn-primary"><h1><span class="glyphicon glyphicon-home"></span></h1>Administrar<br>Establecimientos</button>
             </form>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
+            <form role="form" method="post" action="/admininicio">
+              <input type="hidden" name="metodo" value="repo">
+              <button type="submit" class="btn btn-primary"><h1><span class="glyphicon glyphicon-list-alt"></span></h1><br>Reportes</button>
+            </form>
+      </div>
+      <div class="col-md-3">
             
               <input type="hidden" name="metodo" value="estab">
               <button id="exportar" class="btn btn-primary"><h1><span class="glyphicon glyphicon-arrow-right"></span></h1>Exportar<br>Datos</button>

@@ -668,28 +668,121 @@ io.on('connection',function(socket){
         }
       });
   });
+  socket.on('ver_reporte_2',function(data){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_LISTA(:servicio,:categoria))",[data.servicio,data.categoria],
+      function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var z = 0;z<result.metaData.length;z++){
+          resultado = resultado + ";" + result.metaData[z].name;
+        }
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('reporte',resultado.substring(1));
+      });
+  });
+  socket.on('csv_reporte_2',function(data){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_LISTA(:servicio,:categoria))",[data.servicio,data.categoria],
+      function(err,result){
+        if(err){console.error(err.message);return;}
+        escribirCSV(result,"reporte2",function(estado){
+          console.log(estado);
+        })
+      });
+  });
+  socket.on('ver_reporte_3',function(data){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_R3_E(:nombre,:esferas,:servicio,:direccion,:longitud,:latitud,:comentario))",[data.nombre,data.esferas,data.servicio,data.direccion,data.longitud,data.latitud,data.comentario],
+      function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var z = 0;z<result.metaData.length;z++){
+          resultado = resultado + ";" + result.metaData[z].name;
+        }
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('reporte',resultado.substring(1));
+      });
+  });
+    socket.on('csv_reporte_3',function(data){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_R3_E(:nombre,:esferas,:servicio,:direccion,:longitud,:latitud,:comentario))",[data.nombre,data.esferas,data.servicio,data.direccion,data.longitud,data.latitud,data.comentario],
+      function(err,result){
+        if(err){console.error(err.message);return;}
+        escribirCSV(result,"reporte3",function(estado){
+          console.log(estado);
+        })
+      });
+  });
+  socket.on('ver_reporte_5',function(){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_R5_U('FDASD'))",
+      function(err,result){
+        if(err){console.error(err.message);return;}
+        var resultado='';
+        for(var z = 0;z<result.metaData.length;z++){
+          resultado = resultado + ";" + result.metaData[z].name;
+        }
+        for(var i = 0;i<result.rows.length;i++){
+          var resultado2='';
+          for(var j =0;j<result.rows[i].length;j++){
+            resultado2 = resultado2 + ";" + result.rows[i][j]
+          }
+          resultado = resultado + "~" + resultado2.substring(1);
+        }
+        socket.emit('reporte',resultado.substring(1));
+      });
+  });
+  socket.on('csv_reporte_5',function(){
+    connection.execute("SELECT * FROM TABLE(DEVOLVER_R5_U('FDASD'))",
+      function(err,result){
+        if(err){console.error(err.message);return;}
+          escribirCSV(result,"reporte5",function(state){
+          console.log(state);
+        });
+      });
+  });
   socket.on('exportar_archivo',function(){
     console.log('llego');
     connection.execute("SELECT * FROM CA12_CA11_CA8",function(err,result){
       if(err){console.error(err.message);return;}
-      fs.unlink("/home/julio/hola2.csv",function(){
-        for(var w=0;w<result.metaData.length;w++){
-          fs.appendFile("/home/julio/hola2.csv",','+result.metaData[w].name,function(err){
-            console.log(result.rows.length);
-            console.log(w);
-            if(w == result.rows.length){
-              fs.appendFile('/home/julio/hola2.csv','\n',function(){
-                for(var i=0;i<result.rows.length;i++){
-                  fs.appendFile("/home/julio/hola2.csv",result.rows[i]+"\n",function(err){
-                    if(err){throw err}
-                  });
-                }
-                console.log('done');
-              });
-            }
-          });
-        }
-      });
+      else{
+        escribirCSV(result,"salidita",function(state){
+          console.log(state);
+        });
+      }
     });
   });
 });
+function escribirCSV(result, nombre, callback){
+  var a = fs.openSync("/home/julio/"+nombre+".csv",'w');
+  fs.closeSync(a);
+    fs.appendFileSync("/home/julio/"+nombre+".csv",result.metaData[0].name);
+    for(var w=1;w<result.metaData.length;w++){
+      fs.appendFileSync("/home/julio/"+nombre+".csv",','+result.metaData[w].name);
+    }
+    for(var x=0;x<result.rows.length;x++){
+      if(result.rows[x][0]==null){
+          fs.appendFileSync("/home/julio/"+nombre+".csv",'\n');
+        }else{
+          fs.appendFileSync("/home/julio/"+nombre+".csv",'\n'+'"'+result.rows[x][0]+'"');
+        }
+      for(var y =1;y<result.rows[x].length;y++){
+        if(result.rows[x][y]==null){
+          fs.appendFileSync("/home/julio/"+nombre+".csv",',');
+        }else{
+          fs.appendFileSync("/home/julio/"+nombre+".csv",','+'"'+result.rows[x][y]+'"');
+        }
+      }
+    }
+    callback('listo :)');
+
+  
+}

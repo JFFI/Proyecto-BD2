@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proyecto BD2</title>
+  <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+  <script src="javascripts/jquery.min.js"></script>
+  <script src="/javascripts/bootstrap.min.js"></script>
+  <script src="socket.io/socket.io.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-brand"><h4><strong>Proyecto BD2</strong></h4></span>
+      </div>
+      <form class ="navbar-form navbar-right"action="/admininicio" method="post" role="form"> 
+        <input type="hidden" value="salir" name="metodo">
+        <p class="navbar-text"><span class="glyphicon glyphicon-user"></span> {{username}}</p>
+        <button type="submit" class="btn btn-inverse navbar-btn">Salir</button>
+      </form>
+    </div>
+  </nav>
+  <div class="container">
+    <form role="form" action="/reportes" method="post">
+      <input type="hidden" name="metodo" value="backback">
+      <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-arrow-left"></span> Atras</button>
+    </form>
+  </div>
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2>Reportes</h2>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <h2>Resultados:</h2>
+          <div class="col-md-12" id="resultados"></div>
+        </div>
+        <div class="row">
+          Reporte1
+          <hr>
+          Reporte2
+          <div class="form-group">
+            <input id="r2_servicio" placeholder="servicio">
+            <input id="r2_categoria" placeholder="categoria">
+          </div>
+          <button id="boton2">Reporte2</button>
+          <button id="boton2_ex">CSV</button>
+          <hr>
+          Reporte3
+          <div class="form-group">
+            <input id="r3_nombre" placeholder="nombre">
+            <input id="r3_esferas" placeholder="esferas">
+            <input id="r3_servicios" placeholder="servicios">
+            <input id="r3_direccion" placeholder="direccion">
+            <input id="r3_comentarios" placeholder="comentarios">
+          </div>
+          <button id="boton3">Reporte3</button>
+          <button id="boton3_ex">CSV</button>
+          <hr>
+          Reporte4
+          <hr>
+          Reporte5
+          <br>
+          <button id="boton5">Reporte5</button>
+          <button id="boton5_ex">CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  var socket = io.connect();
+  socket.on('reporte',function(data){
+    var listar = data.split('~');
+    var todo = '<table class="table table-striped"><thead><tr>';
+    var listah = listar[0].split(';');
+    var i = 0;
+    for( i = 0; i < listah.length;i++){
+      todo = todo + "<th>"+listah[i]+"</th>";
+    }
+    toto = todo + "</tr></thead><tbody>";
+    for(i = 1; i < listar.length;i++){
+      listah = listar[i].split(';');
+      todo = todo + "<tr>"
+      for (var j = 0; j < listah.length;j++){
+        todo = todo + "<td>" + listah[j]+"</td>";
+      }
+      todo = todo  + "</tr>";
+    }
+    todo = todo + "</tbody></table>";
+    document.getElementById('resultados').innerHTML = todo;
+  });
+  $(function(){
+    document.getElementById('boton2').addEventListener('click',function(){
+      var r2_servicio =document.getElementById('r2_servicio').value;
+      if(r2_servicio != ''){r2_servicio='%'+r2_servicio+'%';}
+      var r2_categoria=document.getElementById('r2_categoria').value;
+      if(r2_categoria != ''){r2_categoria='%'+r2_categoria+'%';}
+      socket.emit('ver_reporte_2',{
+        servicio:r2_servicio,
+        categoria:r2_categoria
+      });
+    });
+    document.getElementById('boton2_ex').addEventListener('click',function(){
+      var r2_servicio =document.getElementById('r2_servicio').value;
+      if(r2_servicio != ''){r2_servicio='%'+r2_servicio+'%';}
+      var r2_categoria=document.getElementById('r2_categoria').value;
+      if(r2_categoria != ''){r2_categoria='%'+r2_categoria+'%';}
+      socket.emit('csv_reporte_2',{
+        servicio:r2_servicio,
+        categoria:r2_categoria
+      });
+    });
+    document.getElementById('boton3').addEventListener('click',function(){
+      var r3_nombre =document.getElementById('r3_nombre').value;
+      if(r3_nombre != ''){r3_nombre='%'+r3_nombre+'%';}
+      var r3_esferas=document.getElementById('r3_esferas').value;
+      var r3_servicio=document.getElementById('r3_servicios').value;
+      if(r3_servicio != ''){r3_servicio='%'+r3_servicio+'%';}
+      var r3_direccion=document.getElementById('r3_direccion').value;
+      if(r3_direccion != ''){r3_direccion='%'+r3_direccion+'%';}
+      var r3_comentario=document.getElementById('r3_comentarios').value;
+      if(r3_comentario != ''){r3_comentario='%'+r3_comentario+'%';}
+      socket.emit('ver_reporte_3',{
+        nombre:r3_nombre,
+        esferas:r3_esferas,
+        servicio:r3_servicio,
+        direccion:r3_direccion,
+        comentario:r3_comentario,
+        latitud:'',
+        longitud:''
+      });
+    });
+    document.getElementById('boton3_ex').addEventListener('click',function(){
+      var r3_nombre =document.getElementById('r3_nombre').value;
+      if(r3_nombre != ''){r3_nombre='%'+r3_nombre+'%';}
+      var r3_esferas=document.getElementById('r3_esferas').value;
+      var r3_servicio=document.getElementById('r3_servicios').value;
+      if(r3_servicio != ''){r3_servicio='%'+r3_servicio+'%';}
+      var r3_direccion=document.getElementById('r3_direccion').value;
+      if(r3_direccion != ''){r3_direccion='%'+r3_direccion+'%';}
+      var r3_comentario=document.getElementById('r3_comentarios').value;
+      if(r3_comentario != ''){r3_comentario='%'+r3_comentario+'%';}
+      socket.emit('csv_reporte_3',{
+        nombre:r3_nombre,
+        esferas:r3_esferas,
+        servicio:r3_servicio,
+        direccion:r3_direccion,
+        comentario:r3_comentario,
+        latitud:'',
+        longitud:''
+      });
+    });
+    document.getElementById('boton5').addEventListener('click',function(){
+      socket.emit('ver_reporte_5');
+    });
+    document.getElementById('boton5_ex').addEventListener('click',function(){
+      socket.emit('csv_reporte_5');
+    });
+  });
+  </script>
+</body>
+</html>
